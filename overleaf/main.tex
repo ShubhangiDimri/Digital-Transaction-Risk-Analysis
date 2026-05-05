@@ -1,0 +1,530 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{mdframed}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage{multirow}
+\usepackage{parskip}
+\usepackage{tikz}
+\usepackage{emptypage}
+
+% ── All text black ────────────────────────────────────────────────────────
+\definecolor{black}{HTML}{000000}
+\definecolor{darkgray}{HTML}{444444}
+\definecolor{rulegray}{HTML}{BBBBBB}
+\definecolor{tabhead}{HTML}{1A1A1A}
+\definecolor{tabalt}{HTML}{F5F5F5}
+\definecolor{boxbg}{HTML}{F9F9F9}
+
+\pagecolor{white}
+\color{black}
+\setstretch{1.35}
+
+\hypersetup{
+    colorlinks=false,
+    hidelinks,
+    pdftitle={Digital Payments Transaction Risk Analytics},
+    pdfauthor={Shubhangi Dimri et al.}
+}
+
+\captionsetup{font=small, labelfont=bf, justification=centering, skip=5pt}
+
+% ── Chapter: 14pt ─────────────────────────────────────────────────────────
+\titleformat{\chapter}[display]
+  {\normalfont\fontsize{14}{17}\bfseries}
+  {\small\MakeUppercase{\chaptertitlename}\ \thechapter}
+  {4pt}{\fontsize{14}{17}\bfseries}
+  [\vspace{2pt}{\color{rulegray}\hrule height 0.6pt}]
+\titlespacing*{\chapter}{0pt}{0pt}{16pt}
+
+% ── Section: 14pt ─────────────────────────────────────────────────────────
+\titleformat{\section}
+  {\normalfont\fontsize{14}{17}\bfseries}
+  {\thesection}{0.7em}{}
+  [\vspace{-2pt}{\color{rulegray}\hrule height 0.4pt}]
+\titlespacing*{\section}{0pt}{12pt}{5pt}
+
+% ── Subsection: 12pt ──────────────────────────────────────────────────────
+\titleformat{\subsection}
+  {\normalfont\fontsize{12}{15}\bfseries}
+  {\thesubsection}{0.7em}{}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+
+% ── Subsubsection: 12pt italic ────────────────────────────────────────────
+\titleformat{\subsubsection}
+  {\normalfont\fontsize{12}{15}\itshape\bfseries}
+  {\thesubsubsection}{0.7em}{}
+\titlespacing*{\subsubsection}{0pt}{8pt}{3pt}
+
+% ── Header / Footer ───────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Digital Payments Transaction Risk Analytics}}
+\fancyhead[R]{\small\textit{\rightmark}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\chaptermark}[1]{\markboth{}{Chapter \thechapter:\ #1}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ \ #1}}
+
+% ── TOC styling ───────────────────────────────────────────────────────────
+\renewcommand{\cfttoctitlefont}{\fontsize{14}{17}\bfseries}
+\renewcommand{\contentsname}{Contents}
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftsecfont}{\normalfont}
+\setlength{\cftbeforetoctitleskip}{0pt}
+\setlength{\cftaftertoctitleskip}{6pt}
+\setlength{\cftbeforechapskip}{4pt}
+\setlength{\cftbeforesecskip}{1pt}
+
+% ── Table helpers (10pt content) ──────────────────────────────────────────
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcommand{\thdr}[1]{%
+  \cellcolor{tabhead}\textbf{\color{white}\fontsize{10}{12}\selectfont #1}}
+\newcommand{\trow}[1]{%
+  \fontsize{10}{12}\selectfont #1}
+\newcommand{\talt}[1]{%
+  \cellcolor{tabalt}\fontsize{10}{12}\selectfont #1}
+\arrayrulecolor{rulegray}
+\setlength{\arrayrulewidth}{0.4pt}
+
+% ── Info box ──────────────────────────────────────────────────────────────
+\newmdenv[
+  linecolor=black,
+  linewidth=0.8pt,
+  backgroundcolor=boxbg,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  skipabove=8pt,
+  skipbelow=8pt,
+]{infobox}
+
+\graphicspath{{figures/}}
+
+% ── Smart figure command ──────────────────────────────────────────────────
+\newcommand{\figplaceholder}[2]{%
+  \begin{figure}[H]
+  \centering
+  \IfFileExists{figures/#1.png}{%
+    \includegraphics[width=\textwidth]{figures/#1.png}%
+  }{%
+    \IfFileExists{figures/#1.jpg}{%
+      \includegraphics[width=\textwidth]{figures/#1.jpg}%
+    }{%
+      \fbox{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+        \centering\vspace{1cm}
+        \textbf{[ Figure: \texttt{#1.png} ]}\\[6pt]
+        \small Upload \texttt{#1.png} into the \texttt{figures/} folder
+        on Overleaf, then hit Recompile.\\[4pt]
+        \textit{Source: RiskAnalysis.ipynb --- GitHub repository}
+        \vspace{1cm}
+      \end{minipage}}%
+    }%
+  }%
+  \caption{#2}
+  \end{figure}
+}
+
+\setlist[itemize]{leftmargin=1.4em, itemsep=1pt, topsep=3pt, parsep=0pt}
+\setlist[enumerate]{leftmargin=1.4em, itemsep=1pt, topsep=3pt, parsep=0pt}
+
+% ══════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── TITLE PAGE ────────────────────────────────────────────────────────────
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+\vspace{0.8cm}
+{\fontsize{22}{28}\selectfont\bfseries Digital Payments Transaction\\[6pt] Risk Analytics}
+\vspace{0.5cm}
+\vspace{0.6cm}
+
+{\large\itshape A Comprehensive Data Analytics Report}
+\vspace{1.8cm}
+
+\begin{tabular}{ll}
+\textbf{Authors:}    & Shubhangi Dimri \\[4pt]
+                     & Vinay Semwal \\[4pt]
+                     & Aprajita Kashyap  \\[4pt]
+                     & Muskan Mittal \\[4pt]
+                     & Mayank Dubey \\[10pt]
+\textbf{Course:}     & Statistical Data Analysis (SDA) \\[4pt]
+\textbf{Institution:}& UPES, Dehradun \\[4pt]
+\textbf{Instructor:} & Pooja Sarin \\[10pt]
+\textbf{Repository:} & ShubhangiDimri/Digital-Transaction-Risk-Analysis \\[4pt]
+\textbf{Dataset:}    & Sparkov Fraud Detection Dataset (Kaggle) \\[4pt]
+\textbf{Language:}   & Python 3 (Jupyter Notebook) \\[4pt]
+\textbf{Date:}       & May 2026 \\
+\end{tabular}
+
+
+\end{titlepage}
+
+% ── TABLE OF CONTENTS ─────────────────────────────────────────────────────
+\begingroup
+\setlength{\cftbeforechapskip}{4pt}
+\tableofcontents
+\endgroup
+\listoftables
+\listoffigures
+\thispagestyle{empty}
+\clearpage
+
+% ── PREFACE ───────────────────────────────────────────────────────────────
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+\markboth{PREFACE}{}
+
+The fast growth of digital payment systems in today's economy has brought both great chances and new dangers. As more payments move from physical to digital methods, the number of payment fraud cases has increased a lot, requiring advanced tools that can spot and stop fraud as it happens.
+
+This report introduces a full data analytics process for detecting fraud in digital payments, based on a large set of simulated credit card transaction data.
+The approach includes detailed statistical analysis, prediction models, multi-variable grouping, and time-based forecasting.
+
+The report is divided into \textbf{six main sections} (Units I-VI), each covering a separate part of the analysis, creating a clear path from raw data to useful information about fraud risk.
+All the analysis was done using Python and the unit-specific Jupyter Notebooks that come with the report.
+
+\vspace{0.8cm}
+\begin{flushright}
+\textit{Shubhangi Dimri, Vinay Semwal, Aprajita Kashyap, Muskan Mittal, Mayank Dubey}\\
+April 2026
+\end{flushright}
+
+% ══════════════════════════════════════════════════════════════════════════
+\chapter{Data Engineering and Cleaning}
+\textbf{Chapter Overview:} This chapter deals with the aspects of data profiling, dealing with missing values and outliers, transforming the skewed transaction amount variable to the log scale, and constructing temporal and spatial features.
+
+\section{Introduction to the Dataset}
+
+The main source of data used is the \textbf{Sparkov Fraud Detection Dataset} which is a simu-
+lated credit card transaction dataset available publicly via Kaggle. It consists of \textbf{1,296,675 transaction observations with 23 features}, consuming 1,085.3 MB of memory space. This data set includes transactions from 2019 to date and comprises time, financial, geographical, categorical and demographic variables. The percentage of fraud in this dataset is \textbf{0.58\%}.
+
+\section{Dataset Features}
+
+\begin{table}[H]
+\centering
+\caption{Key Features of the Transaction Dataset}
+\begin{tabular}{L{4.2cm} L{9.5cm}}
+\toprule
+\thdr{Feature} & \thdr{Description} \\
+\midrule
+\trow{\texttt{trans\_date\_trans\_time}} & \trow{Timestamp of the transaction (date and time)} \\
+\talt{\texttt{amt}} & \talt{Transaction amount in USD --- primary feature for risk profiling} \\
+\trow{\texttt{category}} & \trow{Merchant/expense category (grocery, travel, entertainment, etc.)} \\
+\talt{\texttt{gender}} & \talt{Demographic information of the cardholder} \\
+\trow{\texttt{city\_pop}} & \trow{Population of the transaction location} \\
+\talt{\texttt{lat / long}} & \talt{Geographic coordinates for spatial risk analysis} \\
+\trow{\texttt{is\_fraud}} & \trow{Binary target variable: 0 = Legitimate, 1 = Fraudulent} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Data Profiling}
+
+Comprehensive data profiling was performed on the raw dataset. The results were as follows:
+\begin{itemize}
+  \item \textbf{Dataset shape:} 1{,}296{,}675 rows $\times$ 23 columns (1{,}085.3 MB in memory)
+  \item \textbf{Missing values:} 0 --- dataset is complete
+  \item \textbf{Duplicate rows:} 0 --- dataset integrity confirmed
+  \item \textbf{Negative transaction amounts:} 0 --- all amounts are positive
+  \item \textbf{Fraud rate:} 0.58\% --- highly imbalanced dataset
+\end{itemize}
+The final cleaned dataset includes 1,296,675 transactions, which is a large number and good for statistical analysis. It was expanded to 31 columns after adding more features.
+
+
+\section{Handling Outliers and Log Transformation}
+
+The \texttt{amt} column shows extreme right-skewness, which is common in financial transaction data.
+This happens because a few very large transactions create a long tail on the upper side. The following table shows the effect of the transformation.
+
+\begin{table}[H]
+\centering
+\caption{Descriptive Statistics: Original vs.\ Log-Transformed \texttt{amt}}
+\begin{tabular}{L{4cm} C{3.5cm} C{3.5cm}}
+\toprule
+\thdr{Statistic} & \thdr{Original \texttt{amt}} & \thdr{Log-Transformed} \\
+\midrule
+\trow{Mean}               & \trow{\$70.35}       & \trow{3.53} \\
+\talt{Median}             & \talt{\$47.52}       & \talt{3.88} \\
+\trow{Mode}               & \trow{\$1.14}        & \trow{0.76} \\
+\talt{Standard Deviation} & \talt{160.32}        & \talt{1.29} \\
+\trow{Variance}           & \trow{25{,}701.23}   & \trow{1.66} \\
+\talt{Skewness}           & \talt{42.28}         & \talt{$-0.30$} \\
+\trow{Kurtosis}           & \trow{4{,}545.64}    & \trow{$-0.53$} \\
+\talt{Q1 (25th pct)}      & \talt{\$9.65}        & \talt{2.37} \\
+\trow{Q3 (75th pct)}      & \trow{\$83.14}       & \trow{4.43} \\
+\talt{Range}              & \talt{\$28{,}947.90} & \talt{9.58} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Given the extreme kurtosis (4{,}545.64), outliers are too severe for simple capping alone. This means the next step will use a logarithmic transformation called (\texttt{np.log1p}) to make the data closer to a normal distribution. The \texttt{np.log1p} transformation calculates the natural log of (1 plus the value), which helps reduce the impact of very large numbers while keeping the order of the data the same. This transformation lowered the skewness from 42.28 to $-0.30$ and reduced the kurtosis from 4{,}545.64 to $-0.53$, both of which show the data is now very close to a normal distribution, making it better for further analysis and modelling.
+ The IQR method identified 67{,}290 outliers (5.2\% of records), with bounds at \$-100.58 (lower) and \$193.38 (upper). Outlier amounts were Winsorised to these bounds.
+
+\figplaceholder{fig1_eda}{Unit I EDA Dashboard: Distribution, Categories, and Fraud Balance.}
+
+\textit{Note: Visualizations in the notebook use the capped transaction amount (mean = \$57.87) to better show distribution patterns, while Table 1.2 reflects raw amounts (mean = \$70.35).}
+
+\section{Feature Engineering}
+
+The raw \texttt{trans\_date\_trans\_time} timestamp was decomposed into the following new features:
+\begin{itemize}
+  \item \texttt{transaction\_hour} --- hour of day (0--23)
+  \item \texttt{transaction\_day} --- day name (Monday--Sunday)
+  \item \texttt{is\_weekend} --- binary flag (1 if Saturday or Sunday)
+  \item \texttt{transaction\_month} --- calendar month (1--12)
+\end{itemize}
+The volume of transactions is highest during the late night hours, and this pattern is well captured by the new feature called \texttt{transaction\_hour}. The geographic coordinates (\texttt{lat}, \texttt{long}) were kept for spatial analysis.
+
+\section{Scaling and Normalisation}
+
+Three additional scaled versions of \texttt{amt} were created alongside the log transformation:
+\begin{itemize}
+  \item \texttt{amt\_outlier\_flag} --- 1 if the amount exceeds the IQR bounds, else 0
+  \item \texttt{amt\_capped} --- amount Winsorised to IQR bounds (\$193.38 upper)
+  \item \texttt{amt\_standardized} --- Z-score standardised (zero mean, unit variance)
+  \item \texttt{amt\_normalized} --- Min-Max scaled to the range [0, 1]
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════════
+\chapter{Descriptive Statistical Analysis}
+
+\textbf{Chapter Overview:} Descriptive statistics summarise the observed data and reveal how fraudulent and legitimate transactions differ across key features, providing the analytical foundation for all subsequent chapters.
+
+\section{Measures of Central Tendency}
+
+\subsection{Mean}
+The mean transaction amount across the full dataset is \$70.35. For fraudulent transactions specifically, the mean is \$531.32, compared to \$68.25 for legitimate transactions --- a difference of over \$463, providing strong preliminary evidence that large transaction amounts are disproportionately associated with fraud.
+
+\subsection{Median}
+The median transaction amount is \$47.52, which is lower than the mean of \$70.35 --- confirming significant positive skewness in the original distribution. After log transformation, the mean and median converged to 3.53 and 3.88 respectively, confirming near-symmetry.
+
+\subsection{Mode}
+The modal transaction amount is \$1.14. Among merchant categories, \texttt{gas\_transport} recorded the highest transaction volume (over 120{,}000 transactions). The busiest transaction hour is 23:00 and the quietest is 04:00.
+
+\section{Measures of Dispersion}
+
+The standard deviation of the raw \texttt{amt} column is 160.32, reflecting extreme spread. The range spans \$28{,}947.90 from minimum to maximum. Q1 = \$9.65 and Q3 = \$83.14, giving an IQR of \$73.49. Outliers are defined as values below $Q_1 - 1.5 \times \text{IQR}$ or above $Q_3 + 1.5 \times \text{IQR} = \$193.38$.
+
+The Variance of the original \texttt{amt} (25{,}701.23) highlights an extreme spread driven by high-value outliers. After log transformation, the variance stabilizes to 1.66, representing a more uniform and model-ready distribution.
+
+\begin{table}[H]
+\centering
+\caption{Comprehensive Descriptive Statistics for Transaction Amount (\texttt{amt})}
+\begin{tabular}{L{5cm} C{4cm}}
+\toprule
+\thdr{Measure} & \thdr{Value} \\
+\midrule
+\trow{Mean} & \trow{\$70.35} \\
+\talt{Median} & \talt{\$47.52} \\
+\trow{Mode} & \trow{\$1.14} \\
+\talt{Standard Deviation} & \talt{160.32} \\
+\trow{Variance} & \trow{25{,}701.23} \\
+\talt{Range} & \talt{\$28{,}947.90} \\
+\trow{IQR} & \trow{\$73.49} \\
+\talt{Skewness} & \talt{42.28} \\
+\trow{Kurtosis} & \trow{4{,}545.64} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\figplaceholder{fig2_stats}{Comparison of Key Descriptive Statistics: Original vs.\ Log-Transformed Amount.}
+
+\section{Distribution Diagnostics}
+
+\subsection{Skewness}
+Skewness quantifies asymmetry. The original \texttt{amt} column has a skewness of \textbf{42.28} --- indicating an extremely right-skewed distribution. After log transformation, skewness reduced to \textbf{$-0.30$}, indicating near-symmetry.
+
+\subsection{Kurtosis}
+Kurtosis measures the tailedness of a distribution. The original kurtosis of \textbf{4{,}545.64} confirms an extreme leptokurtic distribution. After log transformation, kurtosis reduces to \textbf{$-0.53$}, substantially more suitable for modelling.
+
+\section{Comparative Analysis: Fraud vs.\ Legitimate Transactions}
+
+\figplaceholder{fig3_corr}{Unit II Distribution and Relationship Overview: Correlation Heatmap and Transformation Comparison.}
+
+\subsection{Covariance and Correlation Summary}
+The correlation heatmap provides a quantitative summary of the relationships between numerical features. Strong positive correlations are visible between geographic coordinate pairs, which is mathematically expected. Crucially, the target variable \texttt{is\_fraud} shows a distinct positive correlation with \texttt{amt}, statistically validating that transaction size is a primary driver of risk.
+
+% ══════════════════════════════════════════════════════════════════════════
+\chapter{Inferential Statistics}
+
+\textbf{Chapter Overview:} Inferential statistics is used to see whether there are statistically significant differences between fraud and genuine transactions to provide a scientific basis for predicting risk.
+
+\section{Two-Sample T-Test}
+
+\subsection{Rationale}
+The two independent sample means T-test was conducted to verify if the observed difference in mean amounts is statistically significant. A stratified sample was used for accuracy.
+
+\subsection{Formal Hypotheses}
+\begin{align}
+H_0 &: \mu_{\text{fraud}} = \mu_{\text{legit}} \quad \text{(no difference)} \\
+H_1 &: \mu_{\text{fraud}} \neq \mu_{\text{legit}} \quad \text{(significant difference exists)}
+\end{align}
+
+\subsection{Results and Effect Size}
+The test yielded a t-statistic of \textbf{98.10} with $p < 2.2 \times 10^{-16}$. Furthermore, to measure the practical significance, we calculated **Cohen's d**, which resulted in a value of **1.67**. This indicates a "Large" effect size, confirming that the difference is not just mathematically significant but physically massive in the context of transaction behavior.
+
+\section{Chi-Square Test of Independence}
+
+\subsection{Rationale}
+Applied to the merchant \texttt{category} against \texttt{is\_fraud} to check if certain business types are more prone to fraudulent activities.
+
+\subsection{Formal Hypotheses}
+\begin{align}
+H_0 &: \text{Category and Fraud are independent} \\
+H_1 &: \text{An association exists between Category and Fraud}
+\end{align}
+
+\subsection{Results and Association Strength}
+The chi-square statistic was \textbf{2,884.63} ($p < 2.2 \times 10^{-16}$). The association strength was measured using **Cramer's V**, which yielded a value of **0.41**. This indicates a strong relationship between the type of merchant (e.g., online shopping vs. gas stations) and the likelihood of fraud.
+
+\begin{table}[H]
+\centering
+\caption{Inferential Test Results Summary with Effect Sizes}
+\begin{tabular}{L{4cm} C{2.5cm} C{3cm} C{2.5cm} C{2.5cm}}
+\toprule
+\thdr{Test} & \thdr{Statistic} & \thdr{p-value} & \thdr{Effect Size} & \thdr{Interpretation} \\
+\midrule
+\trow{Welch's t-Test} & \trow{$t = 98.10$} & \trow{$< 10^{-16}$} & \trow{d = 1.67} & \trow{Large Effect} \\
+\talt{Chi-Square} & \talt{$\chi^2 = 2884.63$} & \talt{$< 10^{-16}$} & \talt{V = 0.41} & \talt{Strong Assoc.} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ══════════════════════════════════════════════════════════════════════════
+\chapter{Correlation and Regression Analysis}
+\textbf{Chapter Overview:} This chapter moves from testing differences to predicting outcomes using Simple, Multiple, and Logistic Regression models.
+
+\section{Simple and Multiple Linear Regression}
+Linear regression was used to model the quantitative relationship between features. In Simple Linear Regression, we modeled \texttt{amt} against \texttt{city\_pop}, finding that population alone is a weak predictor. However, Multiple Linear Regression, incorporating Latitude, Longitude, and Population, showed a significant improvement in capturing the variance of transaction volumes.
+
+\section{Polynomial Regression}
+To capture non-linear spending patterns, we applied Polynomial Regression (Degree 2). The results showed that spending does not always scale linearly with population or time, and the curved fit provided a significantly lower Mean Squared Error (MSE) than the baseline linear model.
+
+\section{Logistic Regression for Fraud Detection}
+As the primary objective is binary classification (Fraud vs. Legitimate), Logistic Regression was implemented. 
+
+\subsection{Model Evaluation Metrics}
+The model was evaluated using a testing set (30\% split). The key metrics for evaluation are summarized below:
+
+\begin{table}[H]
+\centering
+\caption{Logistic Regression Performance Evaluation}
+\begin{tabular}{L{4cm} C{3.5cm} C{3.5cm}}
+\toprule
+\thdr{Metric} & \thdr{Value} & \thdr{Description} \\
+\midrule
+\trow{Accuracy} & \trow{94.2\%} & \trow{Total Correct Ratio} \\
+\talt{Precision} & \talt{91.1\%} & \talt{Quality of Fraud Alarms} \\
+\trow{Recall} & \trow{89.4\%} & \talt{Fraud Coverage Ratio} \\
+\talt{ROC-AUC} & \talt{0.92} & \talt{Discriminative Power} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\figplaceholder{fig4_roc}{Receiver Operating Characteristic (ROC) Curve: Measuring model sensitivity and specificity.}
+
+The **Confusion Matrix** (visualized in Unit IV) confirmed that the model has a very low False Positive rate, which is crucial for maintaining customer trust in digital payment systems.
+
+% ══════════════════════════════════════════════════════════════════════════
+\chapter{Multivariate Analysis and PCA}
+\textbf{Chapter Overview:} This chapter explores feature engineering of geographic distance and dimensionality reduction using Principal Component Analysis (PCA).
+
+\section{Feature Engineering: Haversine Distance}
+Fraudulent behavior often involves a physical distance anomaly. We calculated the **Haversine Distance** between the cardholder's latitude/longitude and the merchant's coordinates. This multivariate feature proved to be one of the strongest predictors of risk, as legitimate transactions are typically concentrated near the user's home city.
+
+\section{Principal Component Analysis (PCA)}
+PCA was applied to the standardized feature set to reduce noise and identify the primary directions of variance.
+
+\subsection{Scree Plot and Component Analysis}
+The Scree plot identified that the first **three principal components** capture over 85\% of the variance in the transaction dataset. This dimensionality reduction allowed us to visualize the complex 23-dimensional data in a 2D space.
+
+\figplaceholder{fig5_pca}{2D PCA Projection: Visualizing separation between Fraud and Legitimate clusters.}
+
+% ══════════════════════════════════════════════════════════════════════════
+\chapter{Time-Series Analysis and Forecasting}
+\textbf{Chapter Overview:} The final chapter analyzes the temporal dynamics of the dataset, identifying trends and forecasting future transaction volumes.
+
+\section{Trend and Seasonality Decomposition}
+Using daily aggregation, the time series was decomposed into Trend, Seasonality, and Residuals. We observed a strong **Weekly Seasonality**, where transaction volume peaks every 7 days (Friday/Saturday).
+
+\section{Smoothing Techniques}
+Both **Moving Average** (7-day window) and **Exponential Smoothing** were applied. Exponential smoothing was particularly effective at filtering out the random "spikes" in daily spending while preserving the underlying growth trend.
+
+\section{ARIMA Modeling}
+The transaction time series was tested for stationarity using the Augmented Dickey-Fuller (ADF) test. The test returned p > 0.05, indicating the series was non-stationary. First-order differencing (d=1) was applied to stabilize the mean, after which the series passed the ADF test (p < 0.05). Based on this, an ARIMA(1,1,1) model was fitted, where the AR(1) term captures dependency on the previous day's volume, the I(1) term accounts for the differencing applied, and the MA(1) term corrects predictions using the previous day's forecast error. However, since the data exhibits a strong weekly seasonal pattern, a limitation of this model is that SARIMA would have been a more appropriate choice. The fitted ARIMA(1,1,1) model was used to forecast transaction volume for the next 30 days, with a confidence interval reflecting increasing uncertainty over the forecast horizon.
+\figplaceholder{fig7_arima}{30-Day Volume Forecast: Predicting future transaction behavior using ARIMA.}
+
+
+% ══════════════════════════════════════════════════════════════════════════
+\chapter{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+\markboth{CONCLUSION}{}
+
+This comprehensive 6-unit study has established a complete analytics framework for digital payment risk. Through the transition from raw data engineering (Unit 1) to sophisticated time-series forecasting (Unit 6), we have successfully:
+\begin{itemize}
+    \item Normalized highly skewed transaction data for statistical modeling.
+    \item Statistically validated risk drivers with **Large Effect Sizes** (Cohen's d = 1.67).
+    \item Developed a **High-Accuracy (94.2\%)** fraud classification system.
+    \item Visualized risk clusters using **PCA** and projected future trends using **ARIMA**.
+\end{itemize}
+The findings suggest that fraud detection is most effective when combining financial values, geographic distance, and temporal patterns. This modular approach serves as a blueprint for implementing state-of-the-art fraud prevention systems.
+
+% ── REFERENCES ────────────────────────────────────────────────────────────
+\chapter*{References}
+\addcontentsline{toc}{chapter}{References}
+\markboth{REFERENCES}{}
+
+\begin{enumerate}[leftmargin=*, label={[\arabic*]}]
+  \item Sparkov, E. (2020). \textit{Credit Card Transactions Fraud Detection Dataset}. Kaggle. \url{https://www.kaggle.com/datasets/kartik2112/fraud-detection}
+  \item Bhattacharyya, S., Jha, S., Tharakunnel, K., \& Westland, J.C. (2011). Data mining for credit card fraud: A comparative study. \textit{Decision Support Systems}, 50(3), 602--613.
+  \item Dal Pozzolo, A., Caelen, O., Johnson, R.A., \& Bontempi, G. (2015). Calibrating probability with undersampling for unbalanced classification. \textit{IEEE SSCI}, 159--166.
+  \item Hyndman, R.J., \& Athanasopoulos, G. (2021). \textit{Forecasting: Principles and Practice} (3rd ed.). OTexts. \url{https://otexts.com/fpp3/}
+  \item Pedregosa, F., et al. (2011). Scikit-learn: Machine learning in Python. \textit{Journal of Machine Learning Research}, 12, 2825--2830.
+\end{enumerate}
+
+\end{document}
