@@ -446,29 +446,87 @@ Linear regression was used to model the quantitative relationship between featur
 To capture non-linear spending patterns, we applied Polynomial Regression (Degree 2). The results showed that spending does not always scale linearly with population or time, and the curved fit provided a significantly lower Mean Squared Error (MSE) than the baseline linear model.
 
 \section{Logistic Regression for Fraud Detection}
-As the primary objective is binary classification (Fraud vs. Legitimate), Logistic Regression was implemented. 
+As the primary objective is binary classification (Fraud vs. Legitimate), Logistic Regression was implemented.
 
-\subsection{Model Evaluation Metrics}
-The model was evaluated using a testing set (30\% split). The key metrics for evaluation are summarized below:
+\subsection{Experimental Setup}
+For computational efficiency, we trained and evaluated the model on a stratified sample of \textbf{17,506} transactions.
+We used the following predictors: \texttt{amt}, \texttt{city\_pop}, \texttt{transaction\_hour}, \texttt{lat}, and \texttt{long}.
+All numeric predictors were standardized (\texttt{StandardScaler}).
+The dataset was split into \textbf{80\% training} and \textbf{20\% testing} using a \textbf{stratified split} (random state = 42), and performance was also estimated using \textbf{5-fold stratified cross-validation} on the training set.
+
+We report results for:
+\begin{itemize}
+  \item \textbf{Baseline Logistic Regression} (no regularization / effectively unregularized).
+  \item \textbf{L1-Regularized Logistic Regression (Lasso)} tuned with \texttt{GridSearchCV} over $C = 1/\lambda$.
+\end{itemize}
+
+\subsection{Multicollinearity Check (VIF)}
+Variance Inflation Factor (VIF) was computed on the training predictors to assess multicollinearity. All predictors were well below the common threshold of 5, indicating negligible multicollinearity.
 
 \begin{table}[H]
 \centering
-\caption{Logistic Regression Performance Evaluation}
-\begin{tabular}{L{4cm} C{3.5cm} C{3.5cm}}
+\caption{VIF Summary (Training Predictors)}
+\begin{tabular}{L{4cm} C{3.5cm} L{3.5cm}}
 \toprule
-\thdr{Metric} & \thdr{Value} & \thdr{Description} \\
+\thdr{Feature} & \thdr{VIF} & \thdr{Interpretation} \\
 \midrule
-\trow{Accuracy} & \trow{94.2\%} & \trow{Total Correct Ratio} \\
-\talt{Precision} & \talt{91.1\%} & \talt{Quality of Fraud Alarms} \\
-\trow{Recall} & \trow{89.4\%} & \talt{Fraud Coverage Ratio} \\
-\talt{ROC-AUC} & \talt{0.92} & \talt{Discriminative Power} \\
+\trow{\texttt{amt}} & \trow{1.07} & \trow{\textbf{< 5} (Pass)} \\
+\talt{\texttt{transaction\_hour}} & \talt{1.07} & \talt{\textbf{< 5} (Pass)} \\
+\trow{\texttt{city\_pop}} & \trow{1.03} & \trow{\textbf{< 5} (Pass)} \\
+\talt{\texttt{lat}} & \talt{1.03} & \talt{\textbf{< 5} (Pass)} \\
+\trow{\texttt{long}} & \trow{1.01} & \trow{\textbf{< 5} (Pass)} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\figplaceholder{fig4_roc}{Receiver Operating Characteristic (ROC) Curve: Measuring model sensitivity and specificity.}
+\subsection{Hold-out Test Performance (20\% Test Set)}
+Table~\ref{tab:unit4_test_metrics} reports performance on the 20\% hold-out test split.
 
-The **Confusion Matrix** (visualized in Unit IV) confirmed that the model has a very low False Positive rate, which is crucial for maintaining customer trust in digital payment systems.
+\begin{table}[H]
+\centering
+\caption{Baseline vs. L1-Regularized Logistic Regression (Hold-out Test)}
+\label{tab:unit4_test_metrics}
+\begin{tabular}{L{4cm} C{2.2cm} C{2.2cm} C{2.2cm} C{2.2cm} C{2.2cm}}
+\toprule
+\thdr{Model} & \thdr{Accuracy} & \thdr{Precision} & \thdr{Recall} & \thdr{F1} & \thdr{ROC-AUC} \\
+\midrule
+\trow{Baseline (no reg)} & \trow{0.8712} & \trow{0.9376} & \trow{0.7497} & \trow{0.8331} & \trow{0.8366} \\
+\talt{Regularized (L1)} & \talt{0.8084} & \talt{0.9541} & \talt{0.5812} & \talt{0.7224} & \talt{0.8395} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{5-Fold Cross-Validation (Training Set)}
+To reduce sensitivity to a single split, we also report 5-fold stratified cross-validation (mean $\pm$ std) on the training split.
+
+\begin{table}[H]
+\centering
+\caption{5-Fold Stratified CV (Mean $\pm$ Std) on Training Data}
+\begin{tabular}{L{4cm} C{2.7cm} C{2.7cm} C{2.7cm} C{2.7cm} C{2.7cm}}
+\toprule
+\thdr{Model} & \thdr{ROC-AUC} & \thdr{Accuracy} & \thdr{Precision} & \thdr{Recall} & \thdr{F1} \\
+\midrule
+\trow{Baseline (no reg)} & \trow{0.8311 $\pm$ 0.0068} & \trow{0.8733 $\pm$ 0.0038} & \trow{0.9483 $\pm$ 0.0041} & \trow{0.7450 $\pm$ 0.0075} & \trow{0.8344 $\pm$ 0.0055} \\
+\talt{Regularized (L1)} & \talt{0.8320 $\pm$ 0.0067} & \talt{0.7890 $\pm$ 0.0033} & \talt{0.9571 $\pm$ 0.0022} & \talt{0.5316 $\pm$ 0.0072} & \talt{0.6836 $\pm$ 0.0063} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Regularization Effects and Interpretation}
+The L1-regularized model selected a sparse solution, zeroing out \texttt{city\_pop}, \texttt{transaction\_hour}, \texttt{lat}, and \texttt{long} (keeping \texttt{amt} as the dominant predictor).
+On the hold-out test set, the L1 model slightly improves ROC-AUC but reduces recall, reflecting a more conservative fraud-flagging behavior.
+
+\subsection{Information Criteria (AIC/BIC)}
+Since scikit-learn does not provide AIC/BIC, these were computed using an equivalent \texttt{statsmodels} logistic regression on standardized predictors.
+For the full model, we obtained \textbf{AIC = 11623.58} and \textbf{BIC = 11668.86}.
+
+\subsection{Model Diagnostics}
+We inspected residual and influence diagnostics (Residuals vs Fitted, Q--Q plot of Pearson residuals, Scale--Location, and Cook's distance), and also a binned residual plot to check calibration across fitted-probability ranges.
+
+\figplaceholder{fig4_roc}{ROC Curves (Baseline vs. L1-Regularized Logistic Regression) for Fraud Detection.}
+\figplaceholder{fig8_unit4_confusion_compare}{Confusion Matrices on the Hold-out Test Set: Baseline vs. L1-Regularized Logistic Regression.}
+\figplaceholder{fig9_unit4_diagnostics}{Diagnostic Plots for Logistic Regression (Residuals, Q--Q, Scale--Location, and Influence).}
+\figplaceholder{fig10_unit4_binned_residual}{Binned Residual Plot (Mean Residual $\pm$ 2SE) to Assess Calibration Across Risk Deciles.}
 
 % ══════════════════════════════════════════════════════════════════════════
 \chapter{Multivariate Analysis and PCA}
@@ -509,7 +567,7 @@ This comprehensive 6-unit study has established a complete analytics framework f
 \begin{itemize}
     \item Normalized highly skewed transaction data for statistical modeling.
     \item Statistically validated risk drivers with **Large Effect Sizes** (Cohen's d = 1.67).
-    \item Developed a **High-Accuracy (94.2\%)** fraud classification system.
+    \item Developed a fraud classification system with \textbf{ROC-AUC $\approx$ 0.84} (held-out test) using Logistic Regression.
     \item Visualized risk clusters using **PCA** and projected future trends using **ARIMA**.
 \end{itemize}
 The findings suggest that fraud detection is most effective when combining financial values, geographic distance, and temporal patterns. This modular approach serves as a blueprint for implementing state-of-the-art fraud prevention systems.
