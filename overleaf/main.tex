@@ -471,19 +471,70 @@ The model was evaluated using a testing set (30\% split). The key metrics for ev
 The **Confusion Matrix** (visualized in Unit IV) confirmed that the model has a very low False Positive rate, which is crucial for maintaining customer trust in digital payment systems.
 
 % ══════════════════════════════════════════════════════════════════════════
-\chapter{Multivariate Analysis and PCA}
-\textbf{Chapter Overview:} This chapter explores feature engineering of geographic distance and dimensionality reduction using Principal Component Analysis (PCA).
+\chapter{Multivariate Analysis (Unit V): Dimensionality Reduction with PCA}
+\textbf{Chapter Overview:} This chapter applies \textbf{exactly one} multivariate technique (PCA) for \textbf{dimensionality reduction} and \textbf{pattern discovery}. The focus is interpretability of components and variance explained, not necessarily predictive performance.
 
 \section{Feature Engineering: Haversine Distance}
-Fraudulent behavior often involves a physical distance anomaly. We calculated the **Haversine Distance** between the cardholder's latitude/longitude and the merchant's coordinates. This multivariate feature proved to be one of the strongest predictors of risk, as legitimate transactions are typically concentrated near the user's home city.
+Fraud can be associated with unusual physical separation between the cardholder location and the merchant location. We engineer \texttt{distance\_km} using the Haversine formula from \texttt{(lat,long)} and \texttt{(merch\_lat,merch\_long)}. This feature is included as one of the numeric inputs to PCA.
+
+\section{Exploratory Correlation Context}
+Before PCA, we visualised correlations among the numeric variables to highlight multicollinearity among geographic coordinates and to motivate dimensionality reduction.
+\figplaceholder{unit5_corr_heatmap}{Correlation heatmap of numeric features (including \texttt{distance\_km}) and \texttt{is\_fraud}.}
 
 \section{Principal Component Analysis (PCA)}
-PCA was applied to the standardized feature set to reduce noise and identify the primary directions of variance.
 
-\subsection{Scree Plot and Component Analysis}
-The Scree plot identified that the first **three principal components** capture over 85\% of the variance in the transaction dataset. This dimensionality reduction allowed us to visualize the complex 23-dimensional data in a 2D space.
+\subsection{6.3.1 Motivation}
+The numeric feature space contains strongly correlated variables (notably latitude/longitude and their merchant counterparts). PCA is appropriate because it transforms correlated variables into a smaller set of \textit{orthogonal} components, enabling compact visualisation and pattern discovery while retaining most of the variance.
 
-\figplaceholder{fig5_pca}{2D PCA Projection: Visualizing separation between Fraud and Legitimate clusters.}
+\subsection{6.3.2 Technical Procedure}
+PCA was executed on a stratified sample (10{,}000 transactions) using the following steps:
+\begin{enumerate}
+  \item \textbf{Standardise features} (mandatory): \texttt{amt}, \texttt{city\_pop}, \texttt{lat}, \texttt{long}, \texttt{merch\_lat}, \texttt{merch\_long}, \texttt{distance\_km}.
+  \item \textbf{Compute covariance matrix} of the standardised features.
+  \item \textbf{Eigendecomposition} of the covariance matrix to obtain eigenvalues/eigenvectors.
+  \item \textbf{Scree plot} to identify an elbow (heuristic).
+  \item \textbf{Cumulative explained variance} to select the number of components for 80--90\% variance.
+  \item \textbf{Loadings analysis} (coefficients) to interpret components.
+  \item \textbf{Projection} onto PC1--PC2 for 2D pattern discovery.
+\end{enumerate}
+
+\subsection{Key Quantitative Outputs}
+\begin{table}[H]
+\centering
+\caption{PCA eigenvalues and explained variance (Unit V).}
+\input{unit5_pca_variance_table}
+\end{table}
+
+The scree plot indicates an \textbf{elbow at PC3}. Using the cumulative explained variance criterion, the number of components required is \textbf{$n_{80}=4$} (\textasciitilde80\%) and \textbf{$n_{90}=5$} (\textasciitilde90\%).
+
+\figplaceholder{unit5_pca_scree}{Scree plot (explained variance ratio) with elbow heuristic marker.}
+\figplaceholder{unit5_pca_cumvar}{Cumulative explained variance with $n_{80}$ and $n_{90}$ thresholds.}
+
+\subsection{6.3.3 Results Interpretation (Loadings)}
+Component meaning is derived from the loadings (eigenvector coefficients). Table~\ref{tab:unit5-loadings} lists the PC1--PC3 loadings for the original features.
+
+\begin{table}[H]
+\centering
+\caption{PCA loadings for PC1--PC3 (higher absolute values contribute more).}
+\label{tab:unit5-loadings}
+\input{unit5_pca_loadings_table}
+\end{table}
+
+From the strongest loadings:
+\begin{itemize}
+  \item \textbf{PC1} is dominated by \texttt{lat} and \texttt{merch\_lat} (with \texttt{long/merch\_long} also contributing), behaving like a \textit{geographic latitude-alignment} axis.
+  \item \textbf{PC2} is driven mainly by \texttt{long} and \texttt{merch\_long}, behaving like a \textit{geographic longitude-alignment} axis.
+  \item \textbf{PC3} is driven strongly by \texttt{amt} and \texttt{city\_pop} with \texttt{distance\_km} contributing, behaving like a \textit{transaction magnitude / urbanicity vs travel-distance} axis.
+\end{itemize}
+
+\figplaceholder{unit5_pca_loadings}{Loadings heatmap for PC1--PC3.}
+
+\subsection{2D Projection (PC1 vs PC2)}
+Finally, we projected transactions into the top two principal components for pattern discovery (points coloured by \texttt{is\_fraud}).
+\figplaceholder{fig5_pca}{2D PCA projection (PC1 vs PC2): pattern discovery coloured by fraud label.}
+
+\subsection{6.3.4 Link to Regression (Unit IV)}
+The regression model (Unit IV) uses original features directly, which can suffer from multicollinearity when geographic variables are highly correlated. PCA provides orthogonal components that could be used as alternative regressors to stabilise coefficients and improve numerical conditioning. The trade-off is interpretability: model coefficients would apply to components rather than individual features, so the loadings table becomes essential for explaining how original variables contribute to each component.
 
 % ══════════════════════════════════════════════════════════════════════════
 \chapter{Time-Series Analysis and Forecasting}
